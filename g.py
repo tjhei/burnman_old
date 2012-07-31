@@ -138,28 +138,6 @@ def eqn_of_state(inp):
 
 
 
-geotherm_table=[]
-for line in open("geotherm.txt").readlines():
-    if (line[0]!='#'):
-	numbers = map(float, line.split())
-	geotherm_table.append(numbers)
-geotherm_p=numpy.array(geotherm_table)[:,0]
-geotherm_T=numpy.array(geotherm_table)[:,1]
-
-
-
-# pressure: in GPa
-# return: temperature
-def geotherm(pressure):
-    idx = bisect.bisect_left(geotherm_p, pressure)
-    #    print geotherm_p[idx]
-
-    return geotherm_T[idx]
-
-
-
-
-
 # rho: density
 # ref_rho: reference density
 # ref_K: 
