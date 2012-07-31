@@ -1,5 +1,6 @@
 import numpy
 import scipy.linalg
+import bisect
 
 # TODO: add up weight percent and check <100 and tell them how much
 
@@ -119,8 +120,52 @@ def test_phases():
     assert t['mol st'] == 4
 
 
+
+#input: pv, fp,
+#return: bulk modulus, shear modulus, density
+def eqn_of_state(inp):
+
+
+
+    bla = 2.0
+
+    out = {}
+    out['density']= lambda pressure: 1+bla*pressure
+
+    return out
+
+
+
+geotherm_table=[]
+for line in open("geotherm.txt").readlines():
+    if (line[0]!='#'):
+	numbers = map(float, line.split())
+	geotherm_table.append(numbers)
+geotherm_p=numpy.array(geotherm_table)[:,0]
+geotherm_T=numpy.array(geotherm_table)[:,1]
+
+
+
+# pressure: in GPa
+# return: temperature
+def geotherm(pressure):
+    idx = bisect.bisect_left(geotherm_p, pressure)
+    #    print geotherm_p[idx]
+
+    return geotherm_T[idx]
+
+
+
+
+
 test_phases()
 test_mol_conv()
+
+
+
+
+
+
 
 
 
@@ -134,8 +179,13 @@ print "out:", inp2
 
 params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
 t = determine_phases(inp2, params)
-print t
+print "phases:", t
 
+ret = eqn_of_state(t)
+
+print "eos:", ret
+
+print ret['density'](42)
 
 
 
