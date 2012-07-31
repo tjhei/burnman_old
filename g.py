@@ -1,40 +1,32 @@
 import numpy
 import pylab
-import scipy.linalg
 import geotherm
 import math
 
 # TODO: add up weight percent and check <100 and tell them how much
 
+molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
 
-#print X
-#    A = numpy.matrix([[ 1, 0, 1],
-#    [ 0,1,0],
-#    [ 0,1,1]])
-#    b = numpy.matrix([[1],[2],[3]])
-    
-#    x = scipy.linalg.solve(A, b)
-    #print x
 
+# check if two floats are close to each other
 def float_eq(a,b):
     return abs(a-b)<1e-10*max(1e-5,abs(a),abs(b))
 
+
+# convert weight percentage (amount, 1.00 = 100%) of a given element to molar mass
 def weight_pct_to_mol(element, amount):
     lower_mantle_mass = 4.043e27 # in g
     Av = 6.02214129e23 # in 1/mol
 
-    molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
     return amount * lower_mantle_mass / molar_mass[element] * Av
 
 
 def test_mol_conv():
     assert weight_pct_to_mol('Fe', 1.0) == 2*weight_pct_to_mol('Fe', 0.5)
-    print float_eq(weight_pct_to_mol('Fe', 1.0), 4.35983834461e+49)
+    assert float_eq(weight_pct_to_mol('Fe', 1.0), 4.35983834461e+49)
 
 
 def conv_inputs(inp):
-   
-
     names = {'Mg':'MgO','Fe':'FeO','Si':'SiO2', 'Ca':'Ca', 'Al':'Al'}
     out = {}
     for a in inp:
@@ -42,8 +34,7 @@ def conv_inputs(inp):
     return out
     
 
-
-#
+# compute phases of pv, fp, st
 # inp = {'MgO':beta, 'FeO': , 'SiO2': gamma, 'Ca':, 'Al':} in mol
 # params = {'Fe in pv': , 'Ca in pv':, 'Al in pv', 'Fe in fp':}
 # returns: 'mol pv' A, 'mol fp' B, 'mol st' C in mol
@@ -80,11 +71,11 @@ def determine_phases(inp, params):
 
 
 
-inp = {'MgO':0.5, 'FeO': 0, 'SiO2':0.5, 'CaO':0, 'Al2O3':0.1}
+#inp = {'MgO':0.5, 'FeO': 0, 'SiO2':0.5, 'CaO':0, 'Al2O3':0.1}
 
-params = {'Fe in pv': 0.8, 'Ca in pv':0.1, 'Al in pv':0, 'Fe in fp':1.0}
+#params = {'Fe in pv': 0.8, 'Ca in pv':0.1, 'Al in pv':0, 'Fe in fp':1.0}
 
-print determine_phases(inp, params)
+#print determine_phases(inp, params)
 
 
 
@@ -126,9 +117,6 @@ def test_phases():
 #input: pv, fp,
 #return: bulk modulus, shear modulus, density
 def eqn_of_state(inp):
-
-
-
     bla = 2.0
 
     out = {}
@@ -147,9 +135,6 @@ def birch_murnaghan(rho, ref_rho, ref_K, K_prime):
     x = rho/ref_rho
     return 3.*ref_K/2. * (pow(x, 7./3.) - pow(x, 5./3.)) \
         * (1 + 0.75*(K_prime-4.)*(pow(x, 2./3.) - 1.))
-
-
-
 
 
 
@@ -226,7 +211,23 @@ grueneisen = [1., 1., 1.]
 density = [1., 1., 1.]
 T=1
 
-print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, thermal_exp, grueneisen,  density, T)
+#print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, thermal_exp, grueneisen,  density, T)
+
+
+#murakami test:
+#molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
+molar_abundance=[0.93, .07]
+molar_weight=[molar_mass['Mg']+molar_mass['Si']+3.*molar_mass['O'], molar_mass['Mg']+molar_mass['O']]
+
+bulk_mod =[253., 170.]
+shear_mod =[166., 131.]
+thermal_exp = [2.20, 3.15]
+grueneisen = [2.4, 3.0]
+density = [4.54e3, 4.04e3]
+T=300
+
+print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, thermal_exp, grueneisen, density, T)
+
 
 
 
@@ -244,6 +245,8 @@ test_mol_conv()
 
 
 
+print "full example:"
+
 inp1 = {'Mg':0.5, 'Fe': 0, 'Si':0.5, 'Ca':0.0, 'Al':0} # wt%
 inp2 = conv_inputs(inp1)
 print "in:", inp1
@@ -253,11 +256,11 @@ params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
 t = determine_phases(inp2, params)
 print "phases:", t
 
-ret = eqn_of_state(t)
-
-print "eos:", ret
-
-print ret['density'](42)
+#ret = eqn_of_state(t)
+#
+#print "eos:", ret
+#
+#print ret['density'](42)
 
 
 
