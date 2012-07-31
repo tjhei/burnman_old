@@ -1,7 +1,7 @@
-
 import numpy
 import scipy.linalg
 
+# TODO: add up weight percent and check <100 and tell them how much
 
 
 #print X
@@ -13,14 +13,39 @@ import scipy.linalg
 #    x = scipy.linalg.solve(A, b)
     #print x
 
+def float_eq(a,b):
+    return abs(a-b)<1e-10*max(1e-5,abs(a),abs(b))
 
+def weight_pct_to_mol(element, amount):
+    lower_mantle_mass = 4.043e27 # in g
+    Av = 6.02214129e23 # in 1/mol
+
+    molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
+    return amount * lower_mantle_mass / molar_mass[element] * Av
+
+
+def test_mol_conv():
+    assert weight_pct_to_mol('Fe', 1.0) == 2*weight_pct_to_mol('Fe', 0.5)
+    print float_eq(weight_pct_to_mol('Fe', 1.0), 4.35983834461e+49)
+
+
+def conv_inputs(inp):
+   
+
+    names = {'Mg':'MgO','Fe':'FeO','Si':'SiO2', 'Ca':'Ca', 'Al':'Al'}
+    out = {}
+    for a in inp:
+        out[names[a]] = weight_pct_to_mol(a,inp[a])
+    return out
+    
 
 
 #
-# inp = {'MgO':beta, 'FeO': , 'SiO2': gamma, 'CaO':, 'Al2O3':}
+# inp = {'MgO':beta, 'FeO': , 'SiO2': gamma, 'Ca':, 'Al':} in mol
 # params = {'Fe in pv': , 'Ca in pv':, 'Al in pv', 'Fe in fp':}
-# ret = 'mol pv' A, 'mol fp' B, 'mol st' C
-# 'Mg in pv':0, 'Fe in pv':0, 'Ca in pv':0,'Si in pv':0, 'Al in pv':0, 'Mg in fp':0,'Fe in fp':0,}
+# returns: 'mol pv' A, 'mol fp' B, 'mol st' C in mol
+# 'Mg in pv':0, 'Fe in pv':0, 'Ca in pv':0,'Si in pv':0, 'Al in pv':0
+# 'Mg in fp':0,'Fe in fp':0
 def determine_phases(inp, params):
 
     ret = {'mol pv':0, 'mol fp':0, 'mol st':0}
@@ -94,9 +119,24 @@ def test_phases():
     assert t['mol st'] == 4
 
 
-
-
 test_phases()
+test_mol_conv()
+
+
+
+
+
+
+inp1 = {'Mg':0.5, 'Fe': 0, 'Si':0.5, 'Ca':0.0, 'Al':0} # wt%
+inp2 = conv_inputs(inp1)
+print "in:", inp1
+print "out:", inp2
+
+params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
+t = determine_phases(inp2, params)
+print t
+
+
 
 
 
