@@ -1,7 +1,7 @@
 import numpy
 import pylab
 import scipy.linalg
-import bisect
+import geotherm
 import math
 
 # TODO: add up weight percent and check <100 and tell them how much
@@ -158,11 +158,6 @@ def geotherm(pressure):
 
 
 
-# test geotherm
-#p= numpy.arange(1.0,128.0,3)
-#t= [geotherm(y) for y in p]
-#pylab.plot(p,t,'+-')
-#pylab.show()
 
 
 # rho: density
@@ -240,6 +235,9 @@ def calc_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, 
 
     return V_p,V_s,V_phi
 
+
+
+# test:
 
 molar_abundance=[1., 1., 1.]
 molar_weight=[1., 1., 1.]
