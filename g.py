@@ -1,4 +1,5 @@
 import numpy
+import pylab
 import scipy.linalg
 import bisect
 
@@ -155,7 +156,11 @@ def geotherm(pressure):
     return geotherm_T[idx]
 
 
+p= numpy.arange(1.0,128.0,3)
+t= [geotherm(y) for y in p]
 
+pylab.plot(p,t,'+-')
+pylab.show()
 
 
 test_phases()
