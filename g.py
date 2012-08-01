@@ -2,11 +2,16 @@ import numpy
 import pylab
 import geotherm
 import math
+import prem
 from tools import *
+from eos_from_ian import bm_density
+import scipy.optimize as opt
 
 # TODO: add up weight percent and check <100 and tell them how much
 
-molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
+molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085} # g/mol
+Av = 6.02214129e23 # Avogadro constant in 1/mol 
+
 
 
 
@@ -14,7 +19,6 @@ molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'S
 # convert weight percentage (amount, 1.00 = 100%) of a given element to molar mass
 def weight_pct_to_mol(element, amount):
     lower_mantle_mass = 4.043e27 # in g
-    Av = 6.02214129e23 # in 1/mol
 
     return amount * lower_mantle_mass / molar_mass[element] * Av
 
@@ -212,34 +216,87 @@ T=1
 
 #murakami test:
 molar_abundance=[0.93, .07]
+#molar_abundance=[1.0, .0]
 molar_weight=[molar_mass['Mg']+molar_mass['Si']+3.*molar_mass['O'], molar_mass['Mg']+molar_mass['O']]
 
 
 list_p = []
 list_Vs = []
+pv_V = []
+st_V = []
+
+
+def test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1):
+    K_T = K_0 + dKdT*(T-300)
+    alpha = a_0 + a_1*T
+    P_th = alpha * K_T*(T-300)
+    V = opt.brentq(lambda x: birch_murnaghan (V0/x, 1., K_0, K_prime) + P_th - p, 0.1, V0)
+    return V
+
+
+
 for p in range(30,130,5):
     #p = 100
-    T=geotherm.geotherm(p)
+    T=geotherm.geotherm_formula(p)
+    #T=geotherm.geotherm(p)
+    T=geotherm.geotherm_brown(p)
 
+    density = [0., 0.]
+
+    
+    V0 = 164    
+    K_0 = 245.
+    K_prime = 4.
+    dKdT = -.036
+    a_0 = 3.19e-5
+    a_1 = 0.88e-8
+
+    V = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1)
+    density[0] = molar_weight[0]*4./(Av*V*1e-24)
+    pv_V.append(density[0])
+
+    if (p<=50):
+        V0 = 76.44
+        K_0 = 158.
+        K_prime = 4.
+        dKdT = -.034
+        a_0 = 2.20e-5
+        a_1 = 3.61e-8
+    else:
+        V0 = 74.04
+        K_0 = 170.
+        K_prime = 4.
+        dKdT = 0.
+        a_0 = 0.
+        a_1 = 0.
+
+    V = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1)
+    density[1] = molar_weight[1]*4./(Av*V*1e-24)
+    st_V.append(density[1])
+    
     bulk_mod =[253., 170.]
-    #shear_mod =[166., 131.]  
-    #G: 166. ,
-    #G': 1.57
-    #DG/dt 
     
     shear_mod = [166. + 1.57*p -.02*(T-300), 113. + 2.15*p -.02*(T-300) ]
     if (p>=50):
         shear_mod[1] = 130. + 2.04*p -.02*(T-300)
 
-    density = [4.54e3, 4.04e3]
-
-
     result = calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
     list_p.append(p)
-    list_Vs.append(result[0])
+    list_Vs.append(result[1])
+
+
+#pylab.plot(list_p,pv_V,'xr')
+#pylab.plot(list_p,st_V,'x-b')
 
 
 pylab.plot(list_p,list_Vs,'+-')
+
+
+#prem
+p = numpy.arange(1.0,360.0,3)
+vs = [prem.prem_V(y)[1] for y in p]
+pylab.plot(p,vs,'+-')
+#pylab.xlim(30,120)
 pylab.show()
 
 
