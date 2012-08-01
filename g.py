@@ -2,15 +2,13 @@ import numpy
 import pylab
 import geotherm
 import math
+from tools import *
 
 # TODO: add up weight percent and check <100 and tell them how much
 
 molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
 
 
-# check if two floats are close to each other
-def float_eq(a,b):
-    return abs(a-b)<1e-10*max(1e-5,abs(a),abs(b))
 
 
 # convert weight percentage (amount, 1.00 = 100%) of a given element to molar mass
@@ -114,7 +112,7 @@ def test_phases():
 
 
 
-#input: pv, fp,
+#input: pv, fp, st in mol
 #return: bulk modulus, shear modulus, density
 def eqn_of_state(inp):
     bla = 2.0
@@ -141,7 +139,7 @@ def birch_murnaghan(rho, ref_rho, ref_K, K_prime):
 # Reuss-Voigt-Hill average
 # inp: bulk modulus, shear modulus, density
 # return K_Si and gamma_i 
-def voigt_reuss_hill(molar_abundance, molar_weight, modulus, thermal_exp, grueneisen, density, T):
+def voigt_reuss_hill(molar_abundance, molar_weight, modulus, density, T):
     # from matas 2007, Appendix C
 
     n_phase = len(modulus)
@@ -179,7 +177,7 @@ def voigt_reuss_hill(molar_abundance, molar_weight, modulus, thermal_exp, gruene
     return (X_V + X_R) / 2
 
 
-def calc_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, thermal_exp, grueneisen,  density, T):
+def calc_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, density, T):
 
     it = range(len(molar_abundance))
     n_i = molar_abundance  # molar abundance for phase i 
@@ -190,8 +188,8 @@ def calc_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, 
     # avg_density = 1./ V sum(n_i M_i)
     avg_density = 1./ V * sum((n_i[i]*M_i[i]) for i in it)
 
-    K_s = voigt_reuss_hill(molar_abundance, molar_weight, bulk_modulus, thermal_exp, grueneisen, density, T)
-    mu = voigt_reuss_hill(molar_abundance, molar_weight, shear_modulus, thermal_exp, grueneisen, density, T)
+    K_s = voigt_reuss_hill(molar_abundance, molar_weight, bulk_modulus, density, T)
+    mu = voigt_reuss_hill(molar_abundance, molar_weight, shear_modulus, density, T)
     V_p = math.sqrt(K_s + 4./3. * mu / avg_density )
     V_s = math.sqrt(mu / avg_density)
     V_phi = math.sqrt(K_s / avg_density)
@@ -206,27 +204,43 @@ molar_abundance=[1., 1., 1.]
 molar_weight=[1., 1., 1.]
 bulk_mod =[1., 1., 1.]
 shear_mod =[1., 1., 1.]
-thermal_exp = [1., 1., 1.]
-grueneisen = [1., 1., 1.]
 density = [1., 1., 1.]
 T=1
 
-#print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, thermal_exp, grueneisen,  density, T)
+#print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
 
 
 #murakami test:
-#molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085}
 molar_abundance=[0.93, .07]
 molar_weight=[molar_mass['Mg']+molar_mass['Si']+3.*molar_mass['O'], molar_mass['Mg']+molar_mass['O']]
 
-bulk_mod =[253., 170.]
-shear_mod =[166., 131.]
-thermal_exp = [2.20, 3.15]
-grueneisen = [2.4, 3.0]
-density = [4.54e3, 4.04e3]
-T=300
 
-print calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, thermal_exp, grueneisen, density, T)
+list_p = []
+list_Vs = []
+for p in range(30,130,5):
+    #p = 100
+    T=geotherm.geotherm(p)
+
+    bulk_mod =[253., 170.]
+    #shear_mod =[166., 131.]  
+    #G: 166. ,
+    #G': 1.57
+    #DG/dt 
+    
+    shear_mod = [166. + 1.57*p -.02*(T-300), 113. + 2.15*p -.02*(T-300) ]
+    if (p>=50):
+        shear_mod[1] = 130. + 2.04*p -.02*(T-300)
+
+    density = [4.54e3, 4.04e3]
+
+
+    result = calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
+    list_p.append(p)
+    list_Vs.append(result[0])
+
+
+pylab.plot(list_p,list_Vs,'+-')
+pylab.show()
 
 
 
@@ -245,16 +259,16 @@ test_mol_conv()
 
 
 
-print "full example:"
+#print "full example:"
 
-inp1 = {'Mg':0.5, 'Fe': 0, 'Si':0.5, 'Ca':0.0, 'Al':0} # wt%
-inp2 = conv_inputs(inp1)
-print "in:", inp1
-print "out:", inp2
+#inp1 = {'Mg':0.5, 'Fe': 0, 'Si':0.5, 'Ca':0.0, 'Al':0} # wt%
+#inp2 = conv_inputs(inp1)
+#print "in:", inp1
+#print "out:", inp2
 
-params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
-t = determine_phases(inp2, params)
-print "phases:", t
+#params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
+#t = determine_phases(inp2, params)
+#print "phases:", t
 
 #ret = eqn_of_state(t)
 #
