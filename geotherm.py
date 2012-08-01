@@ -32,6 +32,8 @@ def geotherm_formula(pressure):
 table_brown = read_table("brown_81.txt")
 table_brown_depth = numpy.array(table_brown)[:,0]
 
+
+# geotherm from Brown81
 def geotherm_brown(pressure):
     depth = 6371. - prem.prem_radius(pressure)
     print depth
