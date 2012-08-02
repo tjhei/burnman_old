@@ -8,27 +8,23 @@ from tools import *
 # pressure: in GPa
 # return: V_p, V_s in km/s
 def prem_V(pressure):
-    idx = bisect.bisect_left(table_p, pressure) - 1
-
-    if (idx < 0):
-        return table[0][3], table[0][4]
-    elif (idx < len(table_p)-1):
-        return linear_interpol(pressure, table_p[idx], table_p[idx+1], table[idx][3], table[idx+1][3]), \
-            linear_interpol(pressure, table_p[idx], table_p[idx+1], table[idx][4], table[idx+1][4])
-    else:
-        return table[idx][3], table[idx][4]
-
+    return lookup_(pressure, 3), lookup_(pressure, 4)
 
 def prem_radius(pressure):
+    return lookup_(pressure, 0)
+
+def prem_density(pressure):
+    return lookup_(pressure, 2)
+
+def lookup_(pressure, colidx):
     idx = bisect.bisect_left(table_p, pressure) - 1
 
     if (idx < 0):
-        return table[0][0]
+        return table[0][colidx]
     elif (idx < len(table_p)-1):
-        return linear_interpol(pressure, table_p[idx], table_p[idx+1], table[idx][0], table[idx+1][0])
+        return linear_interpol(pressure, table_p[idx], table_p[idx+1], table[idx][colidx], table[idx+1][colidx])
     else:
-        return table[idx][0]
-
+        return table[idx][colidx]
 
 #radius pressure density V_p V_s
 table=[] 
@@ -50,6 +46,8 @@ table_p=numpy.array(table)[:,1]
 # test
 if __name__ == "__main__":
     p = numpy.arange(1.0,360.0,3)
-    vs = [prem_V(y)[0] for y in p]
+    vp = [prem_V(y)[0] for y in p]
+    vs = [prem_V(y)[1] for y in p]
+    pylab.plot(p,vp,'+-r')
     pylab.plot(p,vs,'+-')
     pylab.show()
