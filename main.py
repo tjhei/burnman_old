@@ -15,6 +15,8 @@ import seismic
 
 molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085} # g/mol
 Av = 6.022141e23 # Avogadro constant in 1/mol 
+boltzmann_constant = 1.3806503e-23 # in m^2 kg s^-2 K^-1
+gas_constant = Av * boltzmann_constant
 
 
 
