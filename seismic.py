@@ -44,7 +44,7 @@ def voigt_reuss_hill(molar_abundance, molar_weight, modulus, density, T):
 # input: molar_abundance, molar_weight, bulk_modulus, shear_modulus, density (arrays)
 # input: T
 # returns V_p,V_s,V_phi
-def calc_seismic_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, density, T):
+def get_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, density, T):
 
     it = range(len(molar_abundance))
     n_i = molar_abundance  # molar abundance for phase i 

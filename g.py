@@ -9,7 +9,7 @@ import geotherm
 import prem
 from tools import *
 from eos_from_ian import bm_density, birch_murnaghan
-from seismic import *
+import seismic
 
 # TODO: add up weight percent and check <100 and tell them how much
 
@@ -241,7 +241,7 @@ def murakami(molar_abundance):
         pv_shearmod.append(shear_mod[0])
         fp_shearmod.append(shear_mod[1])
 
-        result = calc_seismic_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
+        result = seismic.get_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
         list_p.append(p)
         list_Vp.append(result[0])
         list_Vs.append(result[1])
