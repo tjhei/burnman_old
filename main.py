@@ -265,6 +265,8 @@ molar_abundance=[0.93, .07]
 _, mix_Vs, mix_Vp, _,_,_,_,_ \
     = murakami(molar_abundance)
 
+mix_density = [molar_abundance[0] * pv_density[i] + molar_abundance[1] * fp_density[i] for i in range(len(pv_density))]
+
 # plot Vs
 pylab.subplot(2,2,1)
 p1=pylab.plot(list_p,fp_Vs,'-k')
@@ -300,10 +302,11 @@ pylab.subplot(2,2,4)
 p1=pylab.plot(list_p,fp_density,'-k')
 p2=pylab.plot(list_p,pv_density,'-b')
 p3=pylab.plot(prem_p,prem_density,'ok',markerfacecolor='white')
-pylab.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=2)
+p4=pylab.plot(list_p,mix_density,'-r')
+pylab.legend([p1,p2,p3,p4],["fp", "pv", "PREM", "mix"], loc=4)
 pylab.title("density")
 pylab.xlim(30,135)
-pylab.ylim(4.,8.)
+pylab.ylim(4.,6.5)
 
 
 
