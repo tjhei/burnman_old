@@ -1,6 +1,6 @@
 required:
 
-- Python
+- Python 2.7
 - python modules:
   NumPy and SciPy from http://www.scipy.org/Download/
   pylab (not included up there?)
