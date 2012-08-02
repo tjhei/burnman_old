@@ -14,7 +14,7 @@ import seismic
 # TODO: add up weight percent and check <100 and tell them how much
 
 molar_mass = {'Fe':55.845, 'Mg':24.305, 'O':15.999, 'Al':26.982, 'Ca':40.078, 'Si':28.085} # g/mol
-Av = 6.02214129e23 # Avogadro constant in 1/mol 
+Av = 6.022141e23 # Avogadro constant in 1/mol 
 
 
 
