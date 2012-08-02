@@ -29,7 +29,7 @@ def geotherm_formula(pressure):
         return 1680+11.1*pressure
 
 
-table_brown = read_table("brown_81.txt")
+table_brown = read_table("data/brown_81.txt")
 table_brown_depth = numpy.array(table_brown)[:,0]
 
 
@@ -53,7 +53,7 @@ def geotherm_brown(pressure):
 
 
 
-geotherm_table = read_table("geotherm.txt")
+geotherm_table = read_table("data/geotherm.txt")
 
 geotherm_table = sort_table(geotherm_table, 0)
 table_p=numpy.array(geotherm_table)[:,0]

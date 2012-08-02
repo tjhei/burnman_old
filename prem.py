@@ -29,7 +29,7 @@ def lookup_(pressure, colidx):
 #radius pressure density V_p V_s
 table=[] 
 
-for line in open("prem_table.txt").readlines():
+for line in open("data/prem_table.txt").readlines():
     if (line[0]!='#'):
 	numbers = map(float, line.split())
         numbers[1]=numbers[1]*0.1 # convert kbar to GPa
