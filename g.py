@@ -4,7 +4,7 @@ import geotherm
 import math
 import prem
 from tools import *
-from eos_from_ian import bm_density
+from eos_from_ian import bm_density, birch_murnaghan
 import scipy.optimize as opt
 
 # TODO: add up weight percent and check <100 and tell them how much
@@ -125,18 +125,6 @@ def eqn_of_state(inp):
     out['density']= lambda pressure: 1+bla*pressure
 
     return out
-
-
-
-# rho: density
-# ref_rho: reference density
-# ref_K: 
-# K_prime: deriv. bul modulus
-# return: pressure in GPa
-def birch_murnaghan(rho, ref_rho, ref_K, K_prime):
-    x = rho/ref_rho
-    return 3.*ref_K/2. * (pow(x, 7./3.) - pow(x, 5./3.)) \
-        * (1 + 0.75*(K_prime-4.)*(pow(x, 2./3.) - 1.))
 
 
 
