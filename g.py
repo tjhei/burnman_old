@@ -119,6 +119,7 @@ def test_phases():
 #input: pv, fp, st in mol
 #return: bulk modulus, shear modulus, density
 def eqn_of_state(inp):
+    # placeholder for now
     bla = 2.0
 
     out = {}
@@ -174,15 +175,16 @@ def calc_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, 
     it = range(len(molar_abundance))
     n_i = molar_abundance  # molar abundance for phase i 
     M_i = molar_weight  # molar weight for phase i
+    #V_i = n_i * M_i / density:
     V_i = [(n_i[i]*M_i[i]/density[i]) for i in it]
     #V = sum n_i V_i:
     V = sum(i*j for i, j in zip(n_i,V_i))    
-    # avg_density = 1./ V sum(n_i M_i)
+    # avg_density = 1./ V sum(n_i M_i):
     avg_density = 1./ V * sum((n_i[i]*M_i[i]) for i in it)
 
     K_s = voigt_reuss_hill(molar_abundance, molar_weight, bulk_modulus, density, T)
     mu = voigt_reuss_hill(molar_abundance, molar_weight, shear_modulus, density, T)
-    V_p = math.sqrt(K_s + 4./3. * mu / avg_density )
+    V_p = math.sqrt((K_s + 4./3. * mu) / avg_density )
     V_s = math.sqrt(mu / avg_density)
     V_phi = math.sqrt(K_s / avg_density)
 
