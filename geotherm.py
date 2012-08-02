@@ -36,12 +36,10 @@ table_brown_depth = numpy.array(table_brown)[:,0]
 # geotherm from Brown81
 def geotherm_brown(pressure):
     depth = 6371. - prem.prem_radius(pressure)
-    print depth
     idx = bisect.bisect_left(table_brown_depth, depth) - 1
     if (idx < 0):
         return table_brown[0][1]
     elif (idx < len(table_brown)-1):
-        print idx, depth, table_brown_depth[idx]
         return linear_interpol(depth, table_brown_depth[idx], table_brown_depth[idx+1], table_brown[idx][1], table_brown[idx+1][1])
     else:
         return table_brown[idx][1]
@@ -76,4 +74,7 @@ if __name__ == "__main__":
     pylab.plot(p,t,'+-')
     pylab.plot(p,t2,'x--r')
     pylab.plot(p,t3,'*-g')
+    pylab.xlim(25,135)
+    pylab.ylim(1600,3100)
+
     pylab.show()
