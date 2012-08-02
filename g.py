@@ -18,7 +18,7 @@ Av = 6.02214129e23 # Avogadro constant in 1/mol
 
 # convert weight percentage (amount, 1.00 = 100%) of a given element to molar mass
 def weight_pct_to_mol(element, amount):
-    lower_mantle_mass = 4.043e27 # in g
+    lower_mantle_mass = 4.043e27*.75 # in g
 
     return amount * lower_mantle_mass / molar_mass[element] * Av
 
