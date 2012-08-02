@@ -77,13 +77,6 @@ def determine_phases(inp, params):
 
 
 
-#inp = {'MgO':0.5, 'FeO': 0, 'SiO2':0.5, 'CaO':0, 'Al2O3':0.1}
-
-#params = {'Fe in pv': 0.8, 'Ca in pv':0.1, 'Al in pv':0, 'Fe in fp':1.0}
-
-#print determine_phases(inp, params)
-
-
 
 def test_phases():
     # test everything into pv
@@ -293,15 +286,26 @@ pylab.title("Vp")
 pylab.xlim(30,135)
 pylab.ylim(9.25,14.)
 
-
-
+# plot shear mod
 pylab.subplot(2,2,3)
 pylab.title("Shearmodulus comparison")
 p1=pylab.plot(list_p,fp_shearmod,'-g')
-p2=pylab.plot(list_p,prem_shearmod,'o-k',markerfacecolor='white',markevery=5)
-p3=pylab.plot(list_p,pv_shearmod,'-b')
-pylab.legend([p1,p2,p3],["fp", "PREM", "pv"], loc=4)
+p2=pylab.plot(list_p,pv_shearmod,'-b')
+p3=pylab.plot(list_p,prem_shearmod,'ok',markerfacecolor='white',markevery=5)
+pylab.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=4)
 pylab.xlim(30,135)
+
+# plot density
+pylab.subplot(2,2,4)
+p1=pylab.plot(list_p,fp_density,'-k')
+p2=pylab.plot(list_p,pv_density,'-b')
+p3=pylab.plot(prem_p,prem_density,'ok',markerfacecolor='white')
+pylab.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=2)
+pylab.title("density")
+pylab.xlim(30,135)
+pylab.ylim(4.,8.)
+
+
 
 pylab.show()
 
