@@ -205,88 +205,169 @@ T=1
 
 
 #murakami test:
-molar_abundance=[0.93, .07]
-#molar_abundance=[1.0, .0]
-molar_weight=[molar_mass['Mg']+molar_mass['Si']+3.*molar_mass['O'], molar_mass['Mg']+molar_mass['O']]
 
-
-list_p = []
-list_Vs = []
-pv_V = []
-st_V = []
-
-
-def test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1):
+def test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0):
     K_T = K_0 + dKdT*(T-300)
     alpha = a_0 + a_1*T
     P_th = alpha * K_T*(T-300)
-    V = opt.brentq(lambda x: birch_murnaghan (V0/x, 1., K_0, K_prime) + P_th - p, 0.1, V0)
-    return V
+    func = lambda x: birch_murnaghan (V0/x, 1., K_0, K_prime) + P_th - p
+    #xx = numpy.arange(0.1, V0, V0/100.)
+    #yy = [func(x) for x in xx]
+    #pylab.plot(xx,yy,'o-r')
+    #pylab.show()
+
+    V = opt.brentq(func, 0.1, V0)
+    bulk_mod = K_0 + K_prime * p + dKdT*(T-300.)
+    bulk_mod = bulk_mod * (1. + alpha * gamma_0 * T)        # formula D6
+    return V, bulk_mod
 
 
+def murakami(molar_abundance):
+    al_p = 0.075
+    pv_X_Mg = 0.94
+    fp_X_Mg = 0.79
+    molar_weight=[pv_X_Mg*molar_mass['Mg']+(1.-pv_X_Mg)*molar_mass['Fe']+(1.-al_p)*molar_mass['Si']+al_p*molar_mass['Al']+3.*molar_mass['O'], \
+                  fp_X_Mg*molar_mass['Mg']+(1.-fp_X_Mg)*molar_mass['Fe']+molar_mass['O']]
 
-for p in range(30,130,5):
-    #p = 100
-    T=geotherm.geotherm_formula(p)
-    #T=geotherm.geotherm(p)
-    T=geotherm.geotherm_brown(p)
+    list_p = []
+    list_Vs = []
+    list_Vp = []
+    pv_density = []
+    fp_density = []
+    pv_shearmod = []
+    fp_shearmod = []
+    prem_shearmod = []
 
-    density = [0., 0.]
+    for p in range(30,141,1):
+        #T=geotherm.geotherm_formula(p)
+        #T=geotherm.geotherm(p)
+        T=geotherm.geotherm_brown(p) #by far the best fit
 
-    
-    V0 = 164    
-    K_0 = 245.
-    K_prime = 4.
-    dKdT = -.036
-    a_0 = 3.19e-5
-    a_1 = 0.88e-8
+        density = [0., 0.]
+        bulk_mod =[0., 0.]
+        shear_mod = [0., 0.]
 
-    V = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1)
-    density[0] = molar_weight[0]*4./(Av*V*1e-24)
-    pv_V.append(density[0])
-
-    if (p<=50):
-        V0 = 76.44
-        K_0 = 158.
+        # pv:
+        # values from ricolleau table 1
+        V0 = 164.
+        K_0 = 245.
         K_prime = 4.
-        dKdT = -.034
-        a_0 = 2.20e-5
-        a_1 = 3.61e-8
-    else:
-        V0 = 74.04
-        K_0 = 170.
-        K_prime = 4.
-        dKdT = 0.
-        a_0 = 0.
-        a_1 = 0.
+        dKdT = -.036
+        a_0 = 3.19e-5
+        a_1 = 0.88e-8
+        gamma_0 = 1.48
 
-    V = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1)
-    density[1] = molar_weight[1]*4./(Av*V*1e-24)
-    st_V.append(density[1])
-    
-    bulk_mod =[253., 170.]
-    
-    shear_mod = [166. + 1.57*p -.02*(T-300), 113. + 2.15*p -.02*(T-300) ]
-    if (p>=50):
-        shear_mod[1] = 130. + 2.04*p -.02*(T-300)
+        V, bulk_mod[0] = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0)
+        atoms_per_unit_cell = 4. # correct for pv
+        density[0] = molar_weight[0]*atoms_per_unit_cell / (Av*V*1e-24)    #correct according to jc and cayman
 
-    result = calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
-    list_p.append(p)
-    list_Vs.append(result[1])
+        pv_density.append(density[0])
+
+        # fp:
+        # values from ricolleau table 1
+        if (p<=50.):
+            V0 = 76.44
+            K_0 = 158.
+            K_prime = 4.
+            dKdT = -.034
+            a_0 = 2.20e-5
+            a_1 = 3.61e-8
+        else:
+            V0 = 74.04
+            K_0 = 170.
+            K_prime = 4.
+            dKdT = -.034
+            a_0 = 2.20e-5
+            a_1 = 3.61e-8
+            #missing values, should we use 0?
+            #dKdT = 0.
+            #a_0 = 0.
+            #a_1 = 0.
+
+        gamma_0 = 1.50
+
+        V, bulk_mod[1] = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0)
+        atoms_per_unit_cell = 4. # correct for fp
+        density[1] = molar_weight[1]*atoms_per_unit_cell/(Av*V*1e-24)    #correct according to jc and cayman
+        fp_density.append(density[1])
+        
+        shear_mod[0] = 166. + 1.57*p -.02*(T-300)
+
+        #if (p>=50.): # from the text
+        #    shear_mod[1] = 130. + 2.04*p -.02*(T-300) # low spin
+        #else:
+        #    shear_mod[1] = 113. + 2.15*p -.02*(T-300)
+
+        if (p>=50.): # reading from fig 3 in Murakami
+            shear_mod[1] = 116. + 1.65*p -.02*(T-300.)
+        else:
+            shear_mod[1] = 103. + 1.78*p -.02*(T-300.)
 
 
-#pylab.plot(list_p,pv_V,'xr')
-#pylab.plot(list_p,st_V,'x-b')
+        pv_shearmod.append(shear_mod[0])
+        fp_shearmod.append(shear_mod[1])
+
+        result = calc_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
+        list_p.append(p)
+        list_Vp.append(result[0])
+        list_Vs.append(result[1])
+
+        prem_shearmod.append(prem.prem_density(p)*pow(prem.prem_V(p)[1],2.0))
+
+    return list_p, list_Vs, list_Vp, pv_density, fp_density, pv_shearmod, fp_shearmod, prem_shearmod
 
 
-pylab.plot(list_p,list_Vs,'+-')
+#compute prem
+prem_p = numpy.arange(28.3,360.0,5)
+prem_vp = [prem.prem_V(y)[0] for y in prem_p]
+prem_vs = [prem.prem_V(y)[1] for y in prem_p]
+prem_density = [prem.prem_density(y) for y in prem_p]
+
+#compute murakami for 100% fp
+molar_abundance=[0., 1.0]
+list_p, fp_Vs, fp_Vp, pv_density, fp_density, pv_shearmod, fp_shearmod, prem_shearmod \
+    = murakami(molar_abundance)
+
+molar_abundance=[1.0, .0]
+_, pv_Vs, pv_Vp, _,_,_,_,_ \
+    = murakami(molar_abundance)
+
+#molar_abundance=[0.95, .05]
+molar_abundance=[0.93, .07]
+_, mix_Vs, mix_Vp, _,_,_,_,_ \
+    = murakami(molar_abundance)
+
+# plot Vs
+pylab.subplot(2,2,1)
+p1=pylab.plot(list_p,fp_Vs,'-k')
+p2=pylab.plot(list_p,pv_Vs,'-b')
+p3=pylab.plot(list_p,mix_Vs,'-r')
+p4=pylab.plot(prem_p,prem_vs,'ok',markerfacecolor='white')
+pylab.legend([p1,p2,p3,p4],["fp", "pv", "mix", "PREM"], loc=4)
+pylab.title("Vs")
+pylab.xlim(25,135)
+pylab.ylim(5.,7.6)
+
+# plot Vp
+pylab.subplot(2,2,2)
+p1=pylab.plot(list_p,fp_Vp,'-k')
+p2=pylab.plot(list_p,mix_Vp,'-r')
+p3=pylab.plot(prem_p,prem_vp,'ok',markerfacecolor='white')
+pylab.legend([p1,p2,p3],["fp", "mix", "PREM"], loc=4)
+pylab.title("Vp")
+pylab.xlim(30,135)
+pylab.ylim(9.25,14.)
 
 
-#prem
-p = numpy.arange(1.0,360.0,3)
-vs = [prem.prem_V(y)[1] for y in p]
-pylab.plot(p,vs,'+-')
-#pylab.xlim(30,120)
+
+pylab.subplot(2,2,3)
+pylab.title("Shearmodulus comparison")
+p1=pylab.plot(list_p,fp_shearmod,'-g')
+p2=pylab.plot(list_p,prem_shearmod,'o-k',markerfacecolor='white',markevery=5)
+p3=pylab.plot(list_p,pv_shearmod,'-b')
+pylab.legend([p1,p2,p3],["fp", "PREM", "pv"], loc=4)
+pylab.xlim(30,135)
+
 pylab.show()
 
 
