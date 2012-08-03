@@ -8,7 +8,7 @@ import matplotlib.pyplot as pyplot
 import geotherm
 import prem
 from tools import *
-from eos_from_ian import bm_density, birch_murnaghan
+from eos_from_ian import birch_murnaghan
 import seismic
 
 # TODO: add up weight percent and check <100 and tell them how much
@@ -50,7 +50,7 @@ def conv_inputs(inp):
 # 'Mg in fp':0,'Fe in fp':0
 def determine_phases(inp, params):
 
-    ret = {'mol pv':0, 'mol fp':0, 'mol st':0}
+    ret = {'mol pv':0., 'mol fp':0., 'mol st':0.}
     ret['Mg in pv'] = 1-params['Fe in pv']-params['Ca in pv'] 
     ret['Fe in pv'] = params['Fe in pv']
     ret['Ca in pv'] = params['Ca in pv']
@@ -65,53 +65,63 @@ def determine_phases(inp, params):
     if (beta > gamma):
         ret['mol pv'] = beta - gamma
         ret['mol fp'] = beta - ret['mol pv']
-        ret['mol st'] = 0
+        ret['mol st'] = 0.
     elif (beta < gamma):
         ret['mol pv'] = beta
-        ret['mol fp'] = 0
+        ret['mol fp'] = 0.
         ret['mol st'] = gamma - ret['mol pv']
     else:
         ret['mol pv'] = beta
-        ret['mol fp'] = 0
-        ret['mol st'] = 0
+        ret['mol fp'] = 0.
+        ret['mol st'] = 0.
     
     return ret
 
 
 
+# test some composition (Javoy 2010, Table 6, PLoM)
+inp1 = {'Mg':0.213, 'Fe': 0., 'Si':0.242, 'Ca':0., 'Al':0.} # wt%
+inp2 = conv_inputs(inp1)
+params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
+t = determine_phases(inp2, params)
+print inp1
+print inp2
+print t
+
+
 
 def test_phases():
     # test everything into pv
-    inp = {'MgO':20, 'FeO': 0, 'SiO2':20, 'CaO':0, 'Al2O3':0.0}
+    inp = {'MgO':20., 'FeO': 0., 'SiO2':20, 'CaO':0, 'Al2O3':0.}
     params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
     t = determine_phases(inp, params)
-    assert t['mol pv'] == 20
-    assert t['mol fp'] == 0
-    assert t['mol st'] == 0
+    assert t['mol pv'] == 20.
+    assert t['mol fp'] == 0.
+    assert t['mol st'] == 0.
 
     #
-    inp = {'MgO':10, 'FeO': 0, 'SiO2':0, 'CaO':0, 'Al2O3':0.0}
+    inp = {'MgO':10, 'FeO': 0., 'SiO2':0., 'CaO':0., 'Al2O3':0.0}
     params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
     t = determine_phases(inp, params)
-    assert t['mol pv'] == 10
-    assert t['mol fp'] == 0
-    assert t['mol st'] == 0
+    assert t['mol pv'] == 10.
+    assert t['mol fp'] == 0.
+    assert t['mol st'] == 0.
 
     #
-    inp = {'MgO':10, 'FeO': 0, 'SiO2':3, 'CaO':0, 'Al2O3':0.0}
+    inp = {'MgO':10, 'FeO': 0., 'SiO2':3, 'CaO':0., 'Al2O3':0.0}
     params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
     t = determine_phases(inp, params)
-    assert t['mol pv'] == 7
-    assert t['mol fp'] == 3
-    assert t['mol st'] == 0
+    assert t['mol pv'] == 7.
+    assert t['mol fp'] == 3.
+    assert t['mol st'] == 0.
 
     #
-    inp = {'MgO':3, 'FeO': 0, 'SiO2':7, 'CaO':0, 'Al2O3':0.0}
+    inp = {'MgO':3., 'FeO': 0., 'SiO2':7., 'CaO':0., 'Al2O3':0.0}
     params = {'Fe in pv': 0.0, 'Ca in pv':0.0, 'Al in pv':0.0, 'Fe in fp':0.0}
     t = determine_phases(inp, params)
-    assert t['mol pv'] == 3
-    assert t['mol fp'] == 0
-    assert t['mol st'] == 4
+    assert t['mol pv'] == 3.
+    assert t['mol fp'] == 0.
+    assert t['mol st'] == 4.
 
 
 
@@ -140,14 +150,10 @@ def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_pe
     alpha = a_0 + a_1*T
     P_th = alpha * K_T*(T-300)
     func = lambda x: birch_murnaghan (V0/x, 1., K_0, K_prime) + P_th - p
-    #xx = numpy.arange(0.1, V0, V0/100.)
-    #yy = [func(x) for x in xx]
-    #pylab.plot(xx,yy,'o-r')
-    #pylab.show()
+    V = opt.brentq(func, 0.1, 3.*V0)
 
-    V = opt.brentq(func, 0.1, V0)
     bulk_mod = K_0 + K_prime * p + dKdT*(T-300.)
-    bulk_mod = bulk_mod * (1. + alpha * gamma_0 * T)        # formula D6
+    bulk_mod = bulk_mod * (1. + alpha * gamma_0 * T)        # formula Matas, D6
 
     density = molar_weight*atoms_per_unit_cell / (Av*V*1e-24)    #correct according to jc and cayman
 
@@ -159,7 +165,7 @@ def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_pe
         # n = number of moles
     C_v = 3. * n * gas_constant # in J * mol / K
 
-    a2_s = -2.*gamma_0 - 2.*eta_0s # eq 47
+    a2_s = -2.*gamma_0 - 2.*eta_0s # eq 47 (Stixrude)
     f = 1./2. * ( pow(V0/V ,2./3.) - 1.) # eq 24
     a1_ii = 6. * gamma_0 # eq 47
     a2_iikk = -12.*gamma_0+36.*pow(gamma_0,2.) - 18.*q*gamma_0 # eq 47
@@ -171,11 +177,13 @@ def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_pe
     #G = G_0 + G_prime*p + dGdT * (T-300.) #simple model
     G = pow(1.+2.*f, 5./2.) * (G_0 + (3.*K_0*G_prime - 5.*G_0)*f \
                                    + (6.*K_0*G_prime - 24.*K_0 -14.*G_0 + 9./2.*K_0*K_prime)*pow(f,2.)) \
-                                   - eta_s*density*C_v* (T-300.) *1e3 * Av / lower_mantle_mass / 1e9 #eq 33 stixrude
+                                   - eta_s*density*C_v* (T-300.) *1e3 * Av / lower_mantle_mass / 1e9 #eq 33
+    shear_mod = G
+    return V, density, bulk_mod, shear_mod
 
-    return V, density, bulk_mod, G
 
-
+#input molar_abundance for pv and fp
+#output: list_p, list_Vs, list_Vp, pv_density, fp_density, pv_shearmod, fp_shearmod, prem_shearmod
 def murakami(molar_abundance):
     al_p = 0.075
     pv_X_Mg = 0.94
