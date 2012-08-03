@@ -219,10 +219,10 @@ def murakami(molar_abundance):
         q = 1.4
         n = 5.
 
-        #murakami:
+        #murakami supp. material Table 5:
         K_0 = 281.
         K_prime = 4.1
-        G_0 = 173.
+        G_0 = 173. #-25. #looks good
         G_prime = 1.56
 
         V, density[0], bulk_mod[0], shear_mod[0] \
