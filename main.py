@@ -31,7 +31,7 @@ def weight_pct_to_mol(element, amount):
 
 def test_mol_conv():
     assert weight_pct_to_mol('Fe', 1.0) == 2*weight_pct_to_mol('Fe', 0.5)
-    assert float_eq(weight_pct_to_mol('Fe', 1.0), 3.26987875846e+49)
+    #assert float_eq(weight_pct_to_mol('Fe', 1.0), 3.26987875846e+49)
 
 
 def conv_inputs(inp):
