@@ -10,6 +10,25 @@
 1. sudo apt-get install python python-scipy python-numpy python-matplotlib 
 2. run with "python main.py" in a shell
 
+*** Install on a MAC
+
+1. If you don't have Python yet, download it (for free) from python.org/download . Make sure you have the latest version (I used 2.7). To check your version of python, type the following in a terminal:
+	python --version
+2. Install the latest Numpy version: http://sourceforge.net/projects/numpy/files/NumPy/
+3. Install the latest Scipy at http://sourceforge.net/projects/scipy/files/
+4. Install the latest Matplotlib from http://sourceforge.net/projects/matplotlib/files/matplotlib/matplotlib-1.1.1/
+5. Go to the main BurnMan directory and type:
+	python main.py
+    Figures should show up.
+
+
+Problems you might run into:
+	- Installing numpy/scipy/matplotlib for a different python version than the one on your 	computer
+	- Having matplotlib for 32-bit instead of 64-bit (for me this got fixed by installing the very latest 	version). This will give you the error 'no matching architecture in universal wrapper'. You can 	check if your python is 32 or 64 bit with the following lines:
+		python
+		>>> import platform
+		>>> print platform.architecture()
+
 
 *** Install under Windows
 
@@ -25,9 +44,3 @@ make Python 2.7.3 (for example) running under windows (do not use Python 3.x, bu
 
 
 
-*** Install under Mac
-
-see
-http://www.scipy.org/Download#head-eb99a6ef6be4f9225176b355d92f2afb59a90602
-
-and pray that it works. :-)
