@@ -1,6 +1,6 @@
 import numpy
 import bisect
-import pylab
+import matplotlib.pyplot as pyplot
 from tools import *
 
 # this loads the PREM seismic velocities from prem_table.txt
@@ -29,18 +29,12 @@ def lookup_(pressure, colidx):
 #radius pressure density V_p V_s
 table=[] 
 
-for line in open("data/prem_table.txt").readlines():
-    if (line[0]!='#'):
-	numbers = map(float, line.split())
-        numbers[1]=numbers[1]*0.1 # convert kbar to GPa
-	table.append(numbers)
-
+# TODO: use tools.read_table
+table = read_table("data/prem_table.txt")
 table = sort_table(table, 1)
-
-table_p=numpy.array(table)[:,1]
-
-
-
+table = numpy.array(table)
+table[:,1] = table[:,1] * 0.1 # convert kbar to GPa
+table_p = table[:,1]
 
 
 # test
@@ -48,6 +42,6 @@ if __name__ == "__main__":
     p = numpy.arange(1.0,360.0,3)
     vp = [prem_V(y)[0] for y in p]
     vs = [prem_V(y)[1] for y in p]
-    pylab.plot(p,vp,'+-r')
-    pylab.plot(p,vs,'+-')
-    pylab.show()
+    pyplot.plot(p,vp,'+-r')
+    pyplot.plot(p,vs,'+-')
+    pyplot.show()
