@@ -1,8 +1,8 @@
 #system libs:
 import numpy
-import pylab
 import scipy.optimize as opt
 import math
+import matplotlib.pyplot as pyplot
 
 #own libs:
 import geotherm
@@ -315,49 +315,49 @@ _, mix_Vs, mix_Vp, _,_,_,_,_ \
 mix_density = [molar_abundance[0] * pv_density[i] + molar_abundance[1] * fp_density[i] for i in range(len(pv_density))]
 
 # plot Vs
-pylab.subplot(2,2,1)
-p1,=pylab.plot(list_p,fp_Vs,'-k')
-p2,=pylab.plot(list_p,pv_Vs,'-b')
-p3,=pylab.plot(list_p,mix_Vs,'-r')
-p4,=pylab.plot(prem_p,prem_vs,'ok',markerfacecolor='white')
-pylab.legend([p1,p2,p3,p4],["fp", "pv", "mix", "PREM"], loc=4)
-pylab.title("Vs")
-pylab.xlim(25,135)
-pylab.ylim(5.,7.6)
+pyplot.subplot(2,2,1)
+p1,=pyplot.plot(list_p,fp_Vs,'-k')
+p2,=pyplot.plot(list_p,pv_Vs,'-b')
+p3,=pyplot.plot(list_p,mix_Vs,'-r')
+p4,=pyplot.plot(prem_p,prem_vs,'ok',markerfacecolor='white')
+pyplot.legend([p1,p2,p3,p4],["fp", "pv", "mix", "PREM"], loc=4)
+pyplot.title("Vs")
+pyplot.xlim(25,135)
+pyplot.ylim(5.,7.6)
 
 # plot Vp
-pylab.subplot(2,2,2)
-p1,=pylab.plot(list_p,fp_Vp,'-k')
-p2,=pylab.plot(list_p,mix_Vp,'-r')
-p3,=pylab.plot(prem_p,prem_vp,'ok',markerfacecolor='white')
-pylab.legend([p1,p2,p3],["fp", "mix", "PREM"], loc=4)
-pylab.title("Vp")
-pylab.xlim(30,135)
-pylab.ylim(9.25,14.)
+pyplot.subplot(2,2,2)
+p1,=pyplot.plot(list_p,fp_Vp,'-k')
+p2,=pyplot.plot(list_p,mix_Vp,'-r')
+p3,=pyplot.plot(prem_p,prem_vp,'ok',markerfacecolor='white')
+pyplot.legend([p1,p2,p3],["fp", "mix", "PREM"], loc=4)
+pyplot.title("Vp")
+pyplot.xlim(30,135)
+pyplot.ylim(9.25,14.)
 
 # plot shear mod
-pylab.subplot(2,2,3)
-pylab.title("Shearmodulus comparison")
-p1,=pylab.plot(list_p,fp_shearmod,'-g')
-p2,=pylab.plot(list_p,pv_shearmod,'-b')
-p3,=pylab.plot(list_p,prem_shearmod,'ok',markerfacecolor='white',markevery=1)
-pylab.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=4)
-pylab.xlim(30,135)
+pyplot.subplot(2,2,3)
+pyplot.title("Shearmodulus comparison")
+p1,=pyplot.plot(list_p,fp_shearmod,'-g')
+p2,=pyplot.plot(list_p,pv_shearmod,'-b')
+p3,=pyplot.plot(list_p,prem_shearmod,'ok',markerfacecolor='white',markevery=1)
+pyplot.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=4)
+pyplot.xlim(30,135)
 
 # plot density
-pylab.subplot(2,2,4)
-p1,=pylab.plot(list_p,fp_density,'-k')
-p2,=pylab.plot(list_p,pv_density,'-b')
-p3,=pylab.plot(prem_p,prem_density,'ok',markerfacecolor='white')
-p4,=pylab.plot(list_p,mix_density,'-r')
-pylab.legend([p1,p2,p3,p4],["fp", "pv", "PREM", "mix"], loc=4)
-pylab.title("density")
-pylab.xlim(30,135)
-pylab.ylim(4.,6.5)
+pyplot.subplot(2,2,4)
+p1,=pyplot.plot(list_p,fp_density,'-k')
+p2,=pyplot.plot(list_p,pv_density,'-b')
+p3,=pyplot.plot(prem_p,prem_density,'ok',markerfacecolor='white')
+p4,=pyplot.plot(list_p,mix_density,'-r')
+pyplot.legend([p1,p2,p3,p4],["fp", "pv", "PREM", "mix"], loc=4)
+pyplot.title("density")
+pyplot.xlim(30,135)
+pyplot.ylim(4.,6.5)
 
 
 
-pylab.show()
+pyplot.show()
 
 
 
