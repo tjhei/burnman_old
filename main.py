@@ -153,15 +153,6 @@ def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_pe
     V = opt.brentq(func, 0.1, 3.*V0)
     density = molar_weight*atoms_per_unit_cell / (Av*V*1e-24)    #correct according to jc and cayman
 
-    bulk_mod = K_0 + K_prime * p + dKdT*(T-300.)
-    bulk_mod = bulk_mod * (1. + alpha * gamma_0 * T)        # formula Matas, D6
-
-
-
-
-
-
-
         # low T:
         # C_v = 234. * n * Av * boltzmann_constant (T/theta_D) ^ 3.  (3.43 from Poirier/EarthInterior)
         # high T:
@@ -179,18 +170,20 @@ def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_pe
     eta_s = - gamma - 1./2. * pow( nu_o_nu0_sq, 2.) * pow(2.*f+1.,2.)*a2_s # eq 46
         
     #G = G_0 + G_prime*p + dGdT * (T-300.) #simple model
+    
     delta_Uq = C_v* (T-300.) *1e3 * Av / lower_mantle_mass / 1e9  #cayman, others say 'what is this?'
     G = pow(1.+2.*f, 5./2.) * (G_0 + (3.*K_0*G_prime - 5.*G_0)*f \
                                    + (6.*K_0*G_prime - 24.*K_0 -14.*G_0 + 9./2.*K_0*K_prime)*pow(f,2.)) \
                                    - eta_s*density*delta_Uq #eq 33
     shear_mod = G
 
+    # simple model:
+    #K = K_0 + K_prime * p + dKdT*(T-300.)
+    #K = K * (1. + alpha * gamma_0 * T)        # formula Matas, D6
     K = pow(1.+2.*f, 5./2.) * ( K_0 + (3*K_0*K_prime -5.*K_0)*f+27./2.*(K_0*K_prime-4.*K_0)*pow(f,2.)) \
         + (gamma+1.-q)*gamma * density * delta_Uq \
         - pow(gamma,2.) * density * C_v * (T-300.)*1e3 * Av / lower_mantle_mass / 1e9   # eq 32
     bulk_mod = K
-
-
 
     return V, density, bulk_mod, shear_mod
 
