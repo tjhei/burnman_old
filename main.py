@@ -340,7 +340,7 @@ pylab.subplot(2,2,3)
 pylab.title("Shearmodulus comparison")
 p1,=pylab.plot(list_p,fp_shearmod,'-g')
 p2,=pylab.plot(list_p,pv_shearmod,'-b')
-p3,=pylab.plot(list_p,prem_shearmod,'ok',markerfacecolor='white',markevery=5)
+p3,=pylab.plot(list_p,prem_shearmod,'ok',markerfacecolor='white',markevery=1)
 pylab.legend([p1,p2,p3],["fp", "pv", "PREM"], loc=4)
 pylab.xlim(30,135)
 
