@@ -22,3 +22,12 @@ make Python 2.7.3 (for example) running under windows (do not use Python 3.x, bu
 5. Open Python Shell (IDLE Pythoon GUI)
 6. File -- Open -- find 'main.py'
 7. Run the module (or press F5)
+
+
+
+*** Install under Mac
+
+see
+http://www.scipy.org/Download#head-eb99a6ef6be4f9225176b355d92f2afb59a90602
+
+and pray that it works. :-)
