@@ -135,7 +135,7 @@ def eqn_of_state(inp):
 
 #murakami test:
 
-def test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0):
+def compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0,molar_weight,atoms_per_unit_cell,n,eta_0s,q,G_0,G_prime):
     K_T = K_0 + dKdT*(T-300)
     alpha = a_0 + a_1*T
     P_th = alpha * K_T*(T-300)
@@ -148,7 +148,32 @@ def test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0):
     V = opt.brentq(func, 0.1, V0)
     bulk_mod = K_0 + K_prime * p + dKdT*(T-300.)
     bulk_mod = bulk_mod * (1. + alpha * gamma_0 * T)        # formula D6
-    return V, bulk_mod
+
+    density = molar_weight*atoms_per_unit_cell / (Av*V*1e-24)    #correct according to jc and cayman
+
+
+        # low T:
+        # C_v = 234. * n * Av * boltzmann_constant (T/theta_D) ^ 3.  (3.43 from Poirier/EarthInterior)
+        # high T:
+        # C_v = 3. * n * gas_constant
+        # n = number of moles
+    C_v = 3. * n * gas_constant # in J * mol / K
+
+    a2_s = -2.*gamma_0 - 2.*eta_0s # eq 47
+    f = 1./2. * ( pow(V0/V ,2./3.) - 1.) # eq 24
+    a1_ii = 6. * gamma_0 # eq 47
+    a2_iikk = -12.*gamma_0+36.*pow(gamma_0,2.) - 18.*q*gamma_0 # eq 47
+           
+    nu_o_nu0_sq = 1.+ a1_ii*f + 1./2.*a2_iikk * pow(f,2.) # eq 41
+    gamma = gamma_0 * pow(V0/V,-q)   # where from??
+    eta_s = - gamma - 1./2. * pow( nu_o_nu0_sq, 2.) * pow(2.*f+1.,2.)*a2_s # eq 46
+        
+    #G = G_0 + G_prime*p + dGdT * (T-300.) #simple model
+    G = pow(1.+2.*f, 5./2.) * (G_0 + (3.*K_0*G_prime - 5.*G_0)*f \
+                                   + (6.*K_0*G_prime - 24.*K_0 -14.*G_0 + 9./2.*K_0*K_prime)*pow(f,2.)) \
+                                   - eta_s*density*C_v* (T-300.) *1e3 * Av / lower_mantle_mass / 1e9 #eq 33 stixrude
+
+    return V, density, bulk_mod, G
 
 
 def murakami(molar_abundance):
@@ -184,13 +209,26 @@ def murakami(molar_abundance):
         dKdT = -.036
         a_0 = 3.19e-5
         a_1 = 0.88e-8
+
         gamma_0 = 1.48
+        atoms_per_unit_cell = 4.
+        G_0 = 166.
+        G_prime = 1.57
+        #dGdT = -.02 unused
+        eta_0s = 2.4
+        q = 1.4
+        n = 5.
 
-        V, bulk_mod[0] = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0)
-        atoms_per_unit_cell = 4. # correct for pv
-        density[0] = molar_weight[0]*atoms_per_unit_cell / (Av*V*1e-24)    #correct according to jc and cayman
+        #murakami:
+        K_0 = 281.
+        K_prime = 4.1
+        G_0 = 173.
+        G_prime = 1.56
 
+        V, density[0], bulk_mod[0], shear_mod[0] \
+            = compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0, molar_weight[0], atoms_per_unit_cell,n, eta_0s, q, G_0, G_prime)
         pv_density.append(density[0])
+
 
         # fp:
         # values from ricolleau table 1
@@ -214,32 +252,39 @@ def murakami(molar_abundance):
             #a_1 = 0.
 
         gamma_0 = 1.50
+        atoms_per_unit_cell = 4.
+        if (p>=50.): # reading from fig 3 in Murakami (X_Mg=0.79)
+            G_0 = 116.  # low spin
+            G_prime = 1.65
+            #dGdT = -.02 unused
+        else:
+            G_0 = 103.  # high spin
+            G_prime = 1.78
+            #dGdT = -.02 unused
+        eta_0s = 3.0
+        q = 1.5
+        n = 2.
 
-        V, bulk_mod[1] = test(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0)
-        atoms_per_unit_cell = 4. # correct for fp
-        density[1] = molar_weight[1]*atoms_per_unit_cell/(Av*V*1e-24)    #correct according to jc and cayman
+        V, density[1], bulk_mod[1],shear_mod[1] \
+            = compute_moduli(p,T,V0,K_0,K_prime,dKdT,a_0,a_1,gamma_0, molar_weight[1], atoms_per_unit_cell,n, eta_0s, q, G_0, G_prime)
         fp_density.append(density[1])
-        
-        shear_mod[0] = 166. + 1.57*p -.02*(T-300)
 
-        #if (p>=50.): # from the text
+
+
+        #if (p>=50.): # from the text in Murakami (page 2), X_Mg = 0.92
         #    shear_mod[1] = 130. + 2.04*p -.02*(T-300) # low spin
         #else:
         #    shear_mod[1] = 113. + 2.15*p -.02*(T-300)
 
-        if (p>=50.): # reading from fig 3 in Murakami
-            shear_mod[1] = 116. + 1.65*p -.02*(T-300.)
-        else:
-            shear_mod[1] = 103. + 1.78*p -.02*(T-300.)
 
 
         pv_shearmod.append(shear_mod[0])
         fp_shearmod.append(shear_mod[1])
 
-        result = seismic.get_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
+        V_p,V_s,V_phi = seismic.get_velocities(molar_abundance, molar_weight, bulk_mod, shear_mod, density, T)
         list_p.append(p)
-        list_Vp.append(result[0])
-        list_Vs.append(result[1])
+        list_Vp.append(V_p)
+        list_Vs.append(V_s)
 
         # shearmodulus = density * V_s^2: (Sanne)
         prem_shearmod.append(prem.prem_density(p)*pow(prem.prem_V(p)[1],2.0))
