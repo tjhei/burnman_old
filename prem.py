@@ -16,6 +16,7 @@ def prem_radius(pressure):
 def prem_density(pressure):
     return lookup_(pressure, 2)
 
+#return linear interpolated column colidx
 def lookup_(pressure, colidx):
     idx = bisect.bisect_left(table_p, pressure) - 1
 
