@@ -62,4 +62,4 @@ def get_velocities(molar_abundance, molar_weight, bulk_modulus, shear_modulus, d
     V_s = math.sqrt(mu / avg_density)
     V_phi = math.sqrt(K_s / avg_density)
 
-    return V_p,V_s,V_phi
+    return V_p, V_s, V_phi
