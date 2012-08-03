@@ -192,7 +192,7 @@ def murakami(molar_abundance):
     fp_shearmod = []
     prem_shearmod = []
 
-    for p in range(30,141,1):
+    for p in numpy.arange(28,141,5.):
         #T=geotherm.geotherm_formula(p)
         #T=geotherm.geotherm(p)
         T=geotherm.geotherm_brown(p) #by far the best fit
