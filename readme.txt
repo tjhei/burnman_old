@@ -1,3 +1,11 @@
+*** About
+
+burnman is a lower mantle shear velocity generator constrained by mineral physics.
+
+Work started by a work-group of the CIDER 2012 workshop in Santa Barbara.
+
+see: https://github.com/tjhei/burnman
+
 *** Requirements
 
 - Python 2.7 (not Python 3.x)
@@ -9,6 +17,7 @@
 
 1. sudo apt-get install python python-scipy python-numpy python-matplotlib 
 2. run with "python main.py" in a shell
+
 
 *** Install on a MAC
 
@@ -41,6 +50,3 @@ make Python 2.7.3 (for example) running under windows (do not use Python 3.x, bu
 5. Open Python Shell (IDLE Pythoon GUI)
 6. File -- Open -- find 'main.py'
 7. Run the module (or press F5)
-
-
-
