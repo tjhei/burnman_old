@@ -301,7 +301,7 @@ def murakami(molar_abundance):
 
 
 #compute prem
-prem_p = numpy.arange(28.3,360.0,5)
+prem_p = numpy.arange(28.3,135.0,5)
 prem_vp = [prem.prem_V(y)[0] for y in prem_p]
 prem_vs = [prem.prem_V(y)[1] for y in prem_p]
 prem_density = [prem.prem_density(y) for y in prem_p]
@@ -327,8 +327,8 @@ pyplot.subplot(2,2,1)
 p1,=pyplot.plot(list_p,fp_Vs,'-k')
 p2,=pyplot.plot(list_p,pv_Vs,'-b')
 p3,=pyplot.plot(list_p,mix_Vs,'-r')
-p4,=pyplot.plot(prem_p,prem_vs,'ok',markerfacecolor='white')
-pyplot.legend([p1,p2,p3,p4],["fp", "pv", "mix", "PREM"], loc=4)
+p4,=pyplot.plot(prem_p,prem_vs,'--k',markerfacecolor='white')
+pyplot.legend([p1,p2,p3,p4],["fp", "pv", "mix (pv: "+str(molar_abundance[0]*100.)+"%)", "PREM"], loc=4)
 pyplot.title("Vs")
 pyplot.xlim(25,135)
 pyplot.ylim(5.,7.6)
