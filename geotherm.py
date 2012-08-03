@@ -1,12 +1,13 @@
 import numpy
 import bisect
-import pylab
+import matplotlib.pyplot as pyplot
 import prem
 from tools import *
 
 # loads a simple geotherm from geotherm.txt
 
 
+# geotherm from geotherm.txt, from Cayman
 # pressure: in GPa
 # return: temperature in K
 def geotherm(pressure):
@@ -29,8 +30,7 @@ def geotherm_formula(pressure):
         return 1680+11.1*pressure
 
 
-table_brown = read_table("data/brown_81.txt")
-table_brown_depth = numpy.array(table_brown)[:,0]
+
 
 
 # geotherm from Brown81
@@ -45,13 +45,12 @@ def geotherm_brown(pressure):
         return table_brown[idx][1]
     
     
+
+
+table_brown = read_table("data/brown_81.txt")
+table_brown_depth = numpy.array(table_brown)[:,0]
+
     
-    
-        
-
-        
-
-
 
 geotherm_table = read_table("data/geotherm.txt")
 
@@ -71,10 +70,11 @@ if __name__ == "__main__":
     t = [geotherm(y) for y in p]
     t2 = [geotherm_formula(y) for y in p]
     t3 = [geotherm_brown(y) for y in p]
-    pylab.plot(p,t,'+-')
-    pylab.plot(p,t2,'x--r')
-    pylab.plot(p,t3,'*-g')
-    pylab.xlim(25,135)
-    pylab.ylim(1600,3100)
+    p1,=pyplot.plot(p,t,'+-')
+    p2,=pyplot.plot(p,t2,'x--r')
+    p3,=pyplot.plot(p,t3,'*-g')
+    pyplot.xlim(25,135)
+    pyplot.ylim(1600,3100)
+    pyplot.legend([p1,p2,p3],["cayman", "watson", "brown"], loc=4)
 
-    pylab.show()
+    pyplot.show()
