@@ -21,6 +21,7 @@ see: https://github.com/tjhei/burnman
 
 *** Install on a MAC
 
+0. get Xcode
 1. If you don't have Python yet, download it (for free) from python.org/download . Make sure you have the latest version (I used 2.7). To check your version of python, type the following in a terminal:
 	python --version
 2. Install the latest Numpy version: http://sourceforge.net/projects/numpy/files/NumPy/
